@@ -10,7 +10,6 @@ import lombok.Data;
 public class Course {
 
 	@Id
-
 	private String cid;
 	private String cname;
 	private String cdesc;
