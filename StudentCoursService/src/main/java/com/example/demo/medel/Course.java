@@ -15,10 +15,23 @@ public class Course {
 	private String cid;
 	private String cname;
 	private String cdesc;
-	private Boolean supended;
-	private Date modifiedAt;
-	private Date createdAt;
+	private Boolean suspended;
+	private Date modifiedAt = new Date();
+	private Date createdAt = new Date();
 	private String createdBy;
+
+	public Course() {
+		super();
+	}
+
+	public Course(String cid, String cname, String cdesc, String createdBy) {
+		super();
+		this.cid = cid;
+		this.cname = cname;
+		this.cdesc = cdesc;
+		this.createdBy = createdBy;
+		this.suspended = false;
+	}
 
 	public String getCid() {
 		return cid;
@@ -44,12 +57,12 @@ public class Course {
 		this.cdesc = cdesc;
 	}
 
-	public Boolean getSupended() {
-		return supended;
+	public Boolean getSuspended() {
+		return suspended;
 	}
 
-	public void setSupended(Boolean supended) {
-		this.supended = supended;
+	public void setSupended(Boolean suspended) {
+		this.suspended = suspended;
 	}
 
 	public Date getModifiedAt() {
@@ -74,6 +87,6 @@ public class Course {
 
 	public void setCreatedBy(String createdBy) {
 		this.createdBy = createdBy;
-	}	
+	}
 
 }
