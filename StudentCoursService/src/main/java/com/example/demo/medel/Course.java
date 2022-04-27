@@ -1,5 +1,7 @@
 package com.example.demo.medel;
 
+import java.util.Date;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -13,6 +15,10 @@ public class Course {
 	private String cid;
 	private String cname;
 	private String cdesc;
+	private Boolean supended;
+	private Date modifiedAt;
+	private Date createdAt;
+	private String createdBy;
 
 	public String getCid() {
 		return cid;
@@ -37,5 +43,37 @@ public class Course {
 	public void setCdesc(String cdesc) {
 		this.cdesc = cdesc;
 	}
+
+	public Boolean getSupended() {
+		return supended;
+	}
+
+	public void setSupended(Boolean supended) {
+		this.supended = supended;
+	}
+
+	public Date getModifiedAt() {
+		return modifiedAt;
+	}
+
+	public void setModifiedAt(Date modifiedAt) {
+		this.modifiedAt = modifiedAt;
+	}
+
+	public Date getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(Date createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}	
 
 }
