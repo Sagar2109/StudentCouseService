@@ -24,15 +24,6 @@ public class Course {
 		super();
 	}
 
-	public Course(String cid, String cname, String cdesc, String createdBy) {
-		super();
-		this.cid = cid;
-		this.cname = cname;
-		this.cdesc = cdesc;
-		this.createdBy = createdBy;
-		this.suspended = false;
-	}
-
 	public String getCid() {
 		return cid;
 	}
@@ -87,6 +78,10 @@ public class Course {
 
 	public void setCreatedBy(String createdBy) {
 		this.createdBy = createdBy;
+	}
+
+	public boolean isSuspended() {
+		return suspended;
 	}
 
 }
