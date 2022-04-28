@@ -38,7 +38,7 @@ public class StudentDaoImpl implements StudentDao {
 
 	@Override
 	public Object insertData(Student student) {
-
+       
 		mongoTemplate.save(student);
 		return student;
 

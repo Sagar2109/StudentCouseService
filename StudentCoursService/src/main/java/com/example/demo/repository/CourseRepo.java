@@ -9,13 +9,12 @@ import org.springframework.stereotype.Repository;
 import com.example.demo.medel.Course;
 
 @Repository
-public interface CourseRepo<T> extends MongoRepository<Course, String> {
+public interface CourseRepo extends MongoRepository<Course, String> {
 
-	@Query(value="{'_id':{$in:?0}}")
+	@Query(value = "{'_id':?0,'suspended':false}")
+	public Course findCourseById(String id);
+
+	@Query(value = "{'_id':{$in:?0}}")
 	public List<Course> findAllCourseByIds(List<String> list);
 
-	
-		
-	
-	
 }

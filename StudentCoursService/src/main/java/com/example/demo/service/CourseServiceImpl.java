@@ -1,7 +1,9 @@
 package com.example.demo.service;
 
+import java.util.Date;
 import java.util.List;
-import java.util.Optional;
+
+import javax.validation.Valid;
 
 import org.bson.Document;
 import org.modelmapper.ModelMapper;
@@ -15,12 +17,15 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.dao.CourseDao;
 import com.example.demo.dao.StudentDao;
 import com.example.demo.dto.CourseDTO;
 import com.example.demo.medel.Course;
 import com.example.demo.medel.Student;
 import com.example.demo.reponse.CourseStudentDetailResponse;
 import com.example.demo.repository.CourseRepo;
+import com.example.demo.request.CourseDeleteRequest;
+import com.example.demo.request.CourseUpdateRequest;
 import com.example.demo.request.ListPageRequest;
 
 @Service
@@ -30,9 +35,11 @@ public class CourseServiceImpl implements CourseService {
 	List<Course> list;
 
 	@Autowired
-	private CourseRepo<Course> courseRepo;
+	private CourseRepo courseRepo;
 	@Autowired
 	private StudentDao stuentDao;
+	@Autowired
+	private CourseDao courseDao;
 	@Autowired
 	private ModelMapper modelMapper;
 
@@ -41,35 +48,27 @@ public class CourseServiceImpl implements CourseService {
 
 	@Override
 	public List<Course> findAll() {
-		list = courseRepo.findAll();
+		list = courseDao.findAll();
 		return list;
 	}
 
 	@Override
-	public Course find(String id) {
-		Optional<Course> ob1;
-		ob1 = courseRepo.findById(id);
-		if(ob1.isPresent())
-			return ob1.get();
-		return null;
-       
-	}
+	public Course findCourseById(String id) {
 
-	@Override
-	public String delete(String id) {
-
-		courseRepo.deleteById(id);
-		return "Record deleted";
+		return courseDao.findCourseById(id);
 
 	}
 
 	@Override
 	public Object insert(Course course) {
+
 		if (isCourseNameExists(course.getCname()))
 			return "Couse Name Already Taken";
-		else
-			courseRepo.save(course);
-		return course;
+		else {
+			course.setSupended(false);
+			return courseRepo.save(course);
+
+		}
 
 	}
 
@@ -83,13 +82,10 @@ public class CourseServiceImpl implements CourseService {
 	}
 
 	@Override
-	public Course update(Course course) {
+	public Course updateCourse(@Valid CourseUpdateRequest courseUpdateRequest) {
 
-		String id = course.getCid();
-		if (courseRepo.existsById(id)) {
-			courseRepo.deleteById(id);
-			courseRepo.save(course);
-		}
+		Course course = courseDao.updateCourse(modelMapper.map(courseUpdateRequest, Course.class));
+
 		return course;
 
 	}
@@ -105,7 +101,7 @@ public class CourseServiceImpl implements CourseService {
 
 	public CourseStudentDetailResponse findCourseStudentDetails(String id) {
 
-		Course course = find(id);
+		Course course = findCourseById(id);
 
 		List<Student> students = stuentDao.findAllByCoursesByStudet(id);
 
@@ -138,7 +134,7 @@ public class CourseServiceImpl implements CourseService {
 
 	@Override
 	public List<CourseDTO> findAllCoursesByLookup() {
-        
+
 		AggregationOperation documentId = new AggregationOperation() {
 			@Override
 			public Document toDocument(AggregationOperationContext context) {
@@ -165,6 +161,22 @@ public class CourseServiceImpl implements CourseService {
 	public Course CourseDTOToCourse(CourseDTO courseDTO) {
 		Course course = modelMapper.map(courseDTO, Course.class);
 		return course;
+	}
+
+	@Override
+	public Course deleteCourse(CourseDeleteRequest request) {
+
+		Course course = courseDao.findCourseById(request.getCid());
+
+		if (course != null && (course.isSuspended() == false)) {
+			course.setCreatedAt(course.getCreatedAt());
+			course.setModifiedAt(new Date());
+			course.setSupended(true);
+			return courseDao.updateCourse(course);
+
+		} else {
+			return null;
+		}
 	}
 
 }
