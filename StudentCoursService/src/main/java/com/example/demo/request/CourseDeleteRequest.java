@@ -1,12 +1,19 @@
 package com.example.demo.request;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 
 public class CourseDeleteRequest {
 
-	@NotNull
+	@NotBlank
 	private String cid;
 	private Boolean suspended;
+	
+	
+
+	public CourseDeleteRequest() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 
 	public String getCid() {
 		return cid;

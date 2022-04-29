@@ -6,7 +6,6 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -76,7 +75,7 @@ public class CourseController {
 	}
 
 	@PutMapping("/del")
-	public Object deleteCourse(@Valid CourseDeleteRequest request, BindingResult bindingResult) {
+	public Object deleteCourse(@Valid @RequestBody CourseDeleteRequest request, BindingResult bindingResult) {
 		Course course = null;
 
 		if (bindingResult.hasErrors() || bindingResult.hasFieldErrors()) {
@@ -144,17 +143,43 @@ public class CourseController {
 	 * courseService.findPage(request); }
 	 */
 
+	/*
+	 * @PostMapping("/list-page") public ResponseEntity<Object>
+	 * listPagenation(@Valid @RequestBody ListPageRequest request, BindingResult
+	 * bindingResult) { if (bindingResult.hasErrors()) {
+	 * 
+	 * return ResponseEntity.badRequest().body(bindingResult.getFieldError().
+	 * getDefaultMessage()); } else {
+	 * 
+	 * List<Course> list = courseService.findPage(request);
+	 * 
+	 * return ResponseEntity.ok().body(list);
+	 * 
+	 * } }
+	 */
+
 	@PostMapping("/list-page")
-	public ResponseEntity<Object> listPagenation(@Valid @RequestBody ListPageRequest request,
-			BindingResult bindingResult) {
-		if (bindingResult.hasErrors()) {
+	public Object listPagenation(@Valid @RequestBody ListPageRequest request, BindingResult bindingResult) {
+		List<Course> list = null;
+		if (bindingResult.hasErrors() || bindingResult.hasFieldErrors()) {
 
-			return ResponseEntity.badRequest().body(bindingResult.getFieldError().getDefaultMessage());
-		} else {
+			return Response.data(HttpStatus.BAD_REQUEST.value(), "BAD_REQUEST", Utils.getFieldError(bindingResult),
+					null);
 
-			List<Course> list = courseService.findPage(request);
+		}
 
-			return ResponseEntity.ok().body(list);
+		try {
+
+			list = courseService.findPage(request);
+			if (list == null) {
+				throw new IllegalAccessException();
+			}
+
+			return Response.data(HttpStatus.OK.value(), "Ok", "List Found", list);
+
+		} catch (Exception e) {
+
+			return Response.data(HttpStatus.NOT_FOUND.value(), "NOT_FOUND", "Record Not Found", null);
 
 		}
 	}

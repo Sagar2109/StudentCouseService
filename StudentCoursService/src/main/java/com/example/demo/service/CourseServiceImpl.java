@@ -1,18 +1,10 @@
 package com.example.demo.service;
 
-import java.util.Date;
 import java.util.List;
 
-import javax.validation.Valid;
-
-import org.bson.Document;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
-import org.springframework.data.mongodb.core.aggregation.AggregationOperationContext;
-import org.springframework.data.mongodb.core.aggregation.LookupOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -82,11 +74,11 @@ public class CourseServiceImpl implements CourseService {
 	}
 
 	@Override
-	public Course updateCourse(@Valid CourseUpdateRequest courseUpdateRequest) {
+	public Course updateCourse(CourseUpdateRequest courseUpdateRequest) {
 
-		Course course = courseDao.updateCourse(modelMapper.map(courseUpdateRequest, Course.class));
+		Course course = modelMapper.map(courseUpdateRequest, Course.class);
 
-		return course;
+		return courseDao.updateCourse(course);
 
 	}
 
@@ -117,39 +109,15 @@ public class CourseServiceImpl implements CourseService {
 	@Override
 	public List<Course> findPage(ListPageRequest request) {
 
-		Criteria cnm = Criteria.where("cname").regex(request.getSearchText(), "i");
-		Criteria cds = Criteria.where("cdesc").regex(request.getSearchText(), "i");
+		return courseDao.findPage(request);
 
-		Query query = new Query(new Criteria().orOperator(cnm, cds));
-		query.skip(request.getPage() * request.getTotalInList()).limit((int) request.getTotalInList());
-
-		String s[] = request.getFields();
-
-		query.fields().include(s).include("_class");
-
-		list = mongoTemplate.find(query, Course.class, "CourseInfo");
-
-		return list;
 	}
 
 	@Override
 	public List<CourseDTO> findAllCoursesByLookup() {
 
-		AggregationOperation documentId = new AggregationOperation() {
-			@Override
-			public Document toDocument(AggregationOperationContext context) {
+		return courseDao.findAllCoursesByLookup();
 
-				return new Document("$addFields", new Document("cid", new Document("$toString", "$_id")));
-			}
-		};
-
-		LookupOperation ss = Aggregation.lookup("StudentInfo", "cid", "courseIds", "students");
-
-		List<CourseDTO> list = mongoTemplate
-				.aggregate(Aggregation.newAggregation(documentId, ss), "CourseInfo", CourseDTO.class)
-				.getMappedResults();
-
-		return list;
 	}
 
 	public CourseDTO CourseToCourseDTO(Course course) {
@@ -168,15 +136,8 @@ public class CourseServiceImpl implements CourseService {
 
 		Course course = courseDao.findCourseById(request.getCid());
 
-		if (course != null && (course.isSuspended() == false)) {
-			course.setCreatedAt(course.getCreatedAt());
-			course.setModifiedAt(new Date());
-			course.setSupended(true);
-			return courseDao.updateCourse(course);
+		return courseDao.deleteCourse(course);
 
-		} else {
-			return null;
-		}
 	}
 
 }
