@@ -1,13 +1,10 @@
 package com.example.demo.service;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.stereotype.Service;
+import java.util.Locale;
+import java.util.Map;
 
 import com.example.demo.dao.CourseDao;
 import com.example.demo.dao.StudentDao;
@@ -15,10 +12,25 @@ import com.example.demo.dto.CourseDTO;
 import com.example.demo.medel.Course;
 import com.example.demo.medel.Student;
 import com.example.demo.reponse.CourseStudentDetailResponse;
+import com.example.demo.reponse.CourseWithUserResponse;
+import com.example.demo.reponse.UserResponse;
 import com.example.demo.repository.CourseRepo;
 import com.example.demo.request.CourseDeleteRequest;
 import com.example.demo.request.CourseUpdateRequest;
 import com.example.demo.request.ListPageRequest;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 
@@ -38,6 +50,9 @@ public class CourseServiceImpl implements CourseService {
 	@Autowired
 	private MongoTemplate mongoTemplate;
 
+	@Value("${userService.user.get}")
+	private String getUserURL;
+
 	@Override
 	public List<Course> findAll() {
 		list = courseDao.findAll();
@@ -45,10 +60,11 @@ public class CourseServiceImpl implements CourseService {
 	}
 
 	@Override
-	public Course findCourseById(String id) {
-
-		return courseDao.findCourseById(id);
-
+	public CourseWithUserResponse findCourseById(String id) {
+		Course course = courseDao.findCourseById(id);
+		CourseWithUserResponse response = modelMapper.map(course, CourseWithUserResponse.class);
+		response.setCreatedBy(findUserById(course.getCreatedBy()));
+		return response;
 	}
 
 	@Override
@@ -93,7 +109,7 @@ public class CourseServiceImpl implements CourseService {
 
 	public CourseStudentDetailResponse findCourseStudentDetails(String id) {
 
-		Course course = findCourseById(id);
+		Course course = null;//findCourseById(id);
 
 		List<Student> students = stuentDao.findAllByCoursesByStudet(id);
 
@@ -137,6 +153,22 @@ public class CourseServiceImpl implements CourseService {
 		Course course = courseDao.findCourseById(request.getCid());
 
 		return courseDao.deleteCourse(course);
+
+	}
+
+	public UserResponse findUserById(String id) {
+		HttpHeaders headers = new HttpHeaders();
+		Map<String, Object> map = new HashMap<>();
+		getUserURL += "/?id=" + id;
+
+		headers.setAcceptLanguageAsLocales(Arrays.asList(Locale.ENGLISH));
+		HttpEntity<Map<String, Object>> httpEntity = new HttpEntity<>(map, headers);
+
+		RestTemplate restTemplate = new RestTemplate();
+		ResponseEntity<UserResponse> surveyResponse = restTemplate.exchange(getUserURL, HttpMethod.GET,
+				httpEntity, UserResponse.class);
+		System.out.println(surveyResponse);
+		return surveyResponse.getBody();
 
 	}
 
