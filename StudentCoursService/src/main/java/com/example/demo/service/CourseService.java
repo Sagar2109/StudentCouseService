@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import com.example.demo.dto.CourseDTO;
 import com.example.demo.medel.Course;
 import com.example.demo.reponse.CourseStudentDetailResponse;
+import com.example.demo.reponse.CourseWithUserResponse;
 import com.example.demo.request.CourseDeleteRequest;
 import com.example.demo.request.CourseUpdateRequest;
 import com.example.demo.request.ListPageRequest;
@@ -29,7 +30,7 @@ public interface CourseService {
 
 	public List<CourseDTO> findAllCoursesByLookup();
 
-	public Course findCourseById(String id);
+	public CourseWithUserResponse findCourseById(String id);
 
 	public Course deleteCourse(CourseDeleteRequest courseDeleteRequest);
 

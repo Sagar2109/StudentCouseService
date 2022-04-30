@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.dto.CourseDTO;
 import com.example.demo.medel.Course;
 import com.example.demo.reponse.CourseStudentDetailResponse;
+import com.example.demo.reponse.CourseWithUserResponse;
 import com.example.demo.request.CourseDeleteRequest;
 import com.example.demo.request.CourseUpdateRequest;
 import com.example.demo.request.ListPageRequest;
@@ -56,19 +57,18 @@ public class CourseController {
 	@GetMapping("/")
 	public Object findCourseById(@RequestParam String cid) {
 
-		Course course;
+		CourseWithUserResponse course;
 		try {
 
 			course = courseService.findCourseById(cid);
 			if (course == null) {
-
 				throw new IllegalAccessException();
 			} else {
 
 				return Response.data(HttpStatus.OK.value(), "Ok", "Course Found", course);
 			}
 		} catch (Exception e) {
-
+			e.printStackTrace();
 			return Response.data(HttpStatus.NOT_FOUND.value(), "NOT_FOUND", "Course Not Found", null);
 
 		}
