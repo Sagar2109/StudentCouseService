@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.example.demo.medel.Course;
-import com.example.demo.medel.Student;
+import com.example.demo.model.Course;
+import com.example.demo.model.Student;
 import com.example.demo.request.ListPageRequest;
 
 @Component

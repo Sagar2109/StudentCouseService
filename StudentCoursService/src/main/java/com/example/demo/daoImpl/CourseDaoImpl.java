@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 
 import com.example.demo.dao.CourseDao;
 import com.example.demo.dto.CourseDTO;
-import com.example.demo.medel.Course;
+import com.example.demo.model.Course;
 import com.example.demo.repository.CourseRepo;
 import com.example.demo.request.ListPageRequest;
 
@@ -102,6 +102,14 @@ public class CourseDaoImpl implements CourseDao {
 
 		return list;
 
+	}
+
+	@Override
+	public List<Course> findAllCoursesBycreatedBy(String createdBy) {
+	   	Criteria criteria = Criteria.where("createdBy").is(createdBy);
+		Query query = Query.query(criteria);
+		return mongoTemplate.find(query, Course.class, "CourseInfo");
+	
 	}
 
 }

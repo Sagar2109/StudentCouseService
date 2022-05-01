@@ -16,9 +16,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.CourseDTO;
-import com.example.demo.medel.Course;
+import com.example.demo.model.Course;
 import com.example.demo.reponse.CourseStudentDetailResponse;
 import com.example.demo.reponse.CourseWithUserResponse;
+import com.example.demo.reponse.ListCoursesResponse;
 import com.example.demo.request.CourseDeleteRequest;
 import com.example.demo.request.CourseUpdateRequest;
 import com.example.demo.request.ListPageRequest;
@@ -187,5 +188,11 @@ public class CourseController {
 	@GetMapping("/course-lookup")
 	public List<CourseDTO> listLookUp() {
 		return courseService.findAllCoursesByLookup();
+	}
+	
+	@GetMapping("/findAll")
+	public List<ListCoursesResponse> findAllCourseBycreatedBy(@RequestParam String createdBy) {
+		return courseService.findAllCoursesBycreatedBy(createdBy);
+
 	}
 }

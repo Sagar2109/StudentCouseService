@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.dao.StudentDao;
-import com.example.demo.medel.Student;
+import com.example.demo.model.Student;
 
 @Service
 public class StudentDaoImpl implements StudentDao {
