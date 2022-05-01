@@ -5,9 +5,10 @@ import java.util.List;
 import javax.validation.Valid;
 
 import com.example.demo.dto.CourseDTO;
-import com.example.demo.medel.Course;
+import com.example.demo.model.Course;
 import com.example.demo.reponse.CourseStudentDetailResponse;
 import com.example.demo.reponse.CourseWithUserResponse;
+import com.example.demo.reponse.ListCoursesResponse;
 import com.example.demo.request.CourseDeleteRequest;
 import com.example.demo.request.CourseUpdateRequest;
 import com.example.demo.request.ListPageRequest;
@@ -35,5 +36,7 @@ public interface CourseService {
 	public Course deleteCourse(CourseDeleteRequest courseDeleteRequest);
 
 	public Course updateCourse(@Valid CourseUpdateRequest courseUpdateRequest);
+
+	List<ListCoursesResponse> findAllCoursesBycreatedBy(String uid);
 
 }

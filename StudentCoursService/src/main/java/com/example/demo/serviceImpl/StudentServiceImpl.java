@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.dao.StudentDao;
 import com.example.demo.dto.StudentDTO;
-import com.example.demo.medel.Student;
+import com.example.demo.model.Student;
 import com.example.demo.service.CourseService;
 import com.example.demo.service.StudentService;
 

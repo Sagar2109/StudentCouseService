@@ -1,25 +1,12 @@
 package com.example.demo.service;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import com.example.demo.dao.CourseDao;
-import com.example.demo.dao.StudentDao;
-import com.example.demo.dto.CourseDTO;
-import com.example.demo.medel.Course;
-import com.example.demo.medel.Student;
-import com.example.demo.reponse.CourseStudentDetailResponse;
-import com.example.demo.reponse.CourseWithUserResponse;
-import com.example.demo.reponse.UserResponse;
-import com.example.demo.repository.CourseRepo;
-import com.example.demo.request.CourseDeleteRequest;
-import com.example.demo.request.CourseUpdateRequest;
-import com.example.demo.request.ListPageRequest;
-
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -31,6 +18,20 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import com.example.demo.dao.CourseDao;
+import com.example.demo.dao.StudentDao;
+import com.example.demo.dto.CourseDTO;
+import com.example.demo.model.Course;
+import com.example.demo.model.Student;
+import com.example.demo.reponse.CourseStudentDetailResponse;
+import com.example.demo.reponse.CourseWithUserResponse;
+import com.example.demo.reponse.ListCoursesResponse;
+import com.example.demo.reponse.UserResponse;
+import com.example.demo.repository.CourseRepo;
+import com.example.demo.request.CourseDeleteRequest;
+import com.example.demo.request.CourseUpdateRequest;
+import com.example.demo.request.ListPageRequest;
 
 @Service
 
@@ -109,7 +110,7 @@ public class CourseServiceImpl implements CourseService {
 
 	public CourseStudentDetailResponse findCourseStudentDetails(String id) {
 
-		Course course = null;//findCourseById(id);
+		Course course =null; //findCourseById(id);
 
 		List<Student> students = stuentDao.findAllByCoursesByStudet(id);
 
@@ -158,18 +159,26 @@ public class CourseServiceImpl implements CourseService {
 
 	public UserResponse findUserById(String id) {
 		HttpHeaders headers = new HttpHeaders();
-		Map<String, Object> map = new HashMap<>();
-		getUserURL += "/?id=" + id;
+		
+		getUserURL += "?id=" + id;
 
 		headers.setAcceptLanguageAsLocales(Arrays.asList(Locale.ENGLISH));
-		HttpEntity<Map<String, Object>> httpEntity = new HttpEntity<>(map, headers);
+		HttpEntity<Map<String, Object>> httpEntity = new HttpEntity<>(headers);
 
 		RestTemplate restTemplate = new RestTemplate();
-		ResponseEntity<UserResponse> surveyResponse = restTemplate.exchange(getUserURL, HttpMethod.GET,
-				httpEntity, UserResponse.class);
+		ResponseEntity<UserResponse> surveyResponse = restTemplate.exchange(getUserURL, HttpMethod.GET, httpEntity,
+				UserResponse.class);
 		System.out.println(surveyResponse);
 		return surveyResponse.getBody();
 
+	}
+
+	@Override
+	public List<ListCoursesResponse> findAllCoursesBycreatedBy(String createdBy) {
+		List<Course> courses = courseDao.findAllCoursesBycreatedBy(createdBy);
+		List<ListCoursesResponse> list = modelMapper.map(courses, new TypeToken<List<ListCoursesResponse>>() {
+		}.getType());
+		return list;
 	}
 
 }

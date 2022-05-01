@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.StudentDTO;
-import com.example.demo.medel.Student;
+import com.example.demo.model.Student;
 import com.example.demo.request.ListCourseIdRequest;
 import com.example.demo.service.StudentService;
 

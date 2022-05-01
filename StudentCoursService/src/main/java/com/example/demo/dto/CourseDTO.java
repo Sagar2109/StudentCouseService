@@ -3,7 +3,7 @@ package com.example.demo.dto;
 import java.util.Date;
 import java.util.List;
 
-import com.example.demo.medel.Student;
+import com.example.demo.model.Student;
 
 public class CourseDTO {
 

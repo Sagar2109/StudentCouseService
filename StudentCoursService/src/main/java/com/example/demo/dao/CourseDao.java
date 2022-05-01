@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.example.demo.dto.CourseDTO;
-import com.example.demo.medel.Course;
+import com.example.demo.model.Course;
 import com.example.demo.request.ListPageRequest;
 
 @Component
@@ -22,5 +22,7 @@ public interface CourseDao {
 	public List<Course> findPage(ListPageRequest request);
 
 	public List<CourseDTO> findAllCoursesByLookup();
+
+	public List<Course> findAllCoursesBycreatedBy(String uid);
 
 }

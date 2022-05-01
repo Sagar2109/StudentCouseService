@@ -1,4 +1,4 @@
-package com.example.demo.medel;
+package com.example.demo.model;
 
 import java.util.List;
 

@@ -2,7 +2,7 @@ package com.example.demo.reponse;
 
 import java.util.List;
 
-import com.example.demo.medel.Student;
+import com.example.demo.model.Student;
 
 public class CourseStudentDetailResponse {
 

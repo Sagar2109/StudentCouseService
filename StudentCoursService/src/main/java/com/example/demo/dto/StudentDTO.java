@@ -2,7 +2,7 @@ package com.example.demo.dto;
 
 import java.util.List;
 
-import com.example.demo.medel.Course;
+import com.example.demo.model.Course;
 
 
 public class StudentDTO {
