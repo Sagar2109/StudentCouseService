@@ -110,7 +110,7 @@ public class CourseServiceImpl implements CourseService {
 
 	public CourseStudentDetailResponse findCourseStudentDetails(String id) {
 
-		Course course =null; //findCourseById(id);
+		Course course = null; // findCourseById(id);
 
 		List<Student> students = stuentDao.findAllByCoursesByStudet(id);
 
@@ -159,7 +159,7 @@ public class CourseServiceImpl implements CourseService {
 
 	public UserResponse findUserById(String id) {
 		HttpHeaders headers = new HttpHeaders();
-		
+
 		getUserURL += "?id=" + id;
 
 		headers.setAcceptLanguageAsLocales(Arrays.asList(Locale.ENGLISH));
@@ -178,6 +178,7 @@ public class CourseServiceImpl implements CourseService {
 		List<Course> courses = courseDao.findAllCoursesBycreatedBy(createdBy);
 		List<ListCoursesResponse> list = modelMapper.map(courses, new TypeToken<List<ListCoursesResponse>>() {
 		}.getType());
+
 		return list;
 	}
 

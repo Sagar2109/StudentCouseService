@@ -189,9 +189,10 @@ public class CourseController {
 	public List<CourseDTO> listLookUp() {
 		return courseService.findAllCoursesByLookup();
 	}
-	
+
 	@GetMapping("/findAll")
-	public List<ListCoursesResponse> findAllCourseBycreatedBy(@RequestParam String createdBy) {
+	public List<ListCoursesResponse> findAllCourseBycreatedBy(@Valid @RequestParam String createdBy) {
+
 		return courseService.findAllCoursesBycreatedBy(createdBy);
 
 	}
