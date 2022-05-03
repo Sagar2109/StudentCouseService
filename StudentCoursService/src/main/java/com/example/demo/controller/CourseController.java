@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -20,6 +21,7 @@ import com.example.demo.model.Course;
 import com.example.demo.reponse.CourseStudentDetailResponse;
 import com.example.demo.reponse.CourseWithUserResponse;
 import com.example.demo.reponse.ListCoursesResponse;
+import com.example.demo.reponse.UserResponse;
 import com.example.demo.request.CourseDeleteRequest;
 import com.example.demo.request.CourseUpdateRequest;
 import com.example.demo.request.ListPageRequest;
@@ -190,10 +192,62 @@ public class CourseController {
 		return courseService.findAllCoursesByLookup();
 	}
 
+	/*
+	 * @GetMapping("/findAll") public List<ListCoursesResponse>
+	 * findAllCourseBycreatedBy(@Valid @RequestParam String createdBy) {
+	 * 
+	 * return courseService.findAllCoursesBycreatedBy(createdBy);
+	 * 
+	 * }
+	 */
+
 	@GetMapping("/findAll")
-	public List<ListCoursesResponse> findAllCourseBycreatedBy(@Valid @RequestParam String createdBy) {
+	public Object findAllCourseBycreatedBy(@Valid @RequestParam String createdBy) {
 
-		return courseService.findAllCoursesBycreatedBy(createdBy);
+		List<ListCoursesResponse> list = null;
+		if (createdBy == null) {
 
+			return Response.data(HttpStatus.BAD_REQUEST.value(), "BAD_REQUEST", Utils.getFieldError(null), null);
+
+		}
+
+		try {
+
+			list = courseService.findAllCoursesBycreatedBy(createdBy);
+			if (list == null) {
+				throw new IllegalAccessException();
+			}
+
+			return Response.data(HttpStatus.OK.value(), "Ok", "List Found", list);
+
+		} catch (Exception e) {
+
+			return Response.data(HttpStatus.NOT_FOUND.value(), "NOT_FOUND", "Record Not Found", null);
+
+		}
+
+	}
+
+	@PostMapping("/users-by-coursePage")
+	public Object usersByCoursePage(@Valid @RequestBody ListPageRequest request, BindingResult bindingResult) {
+		List<Course> list = null;
+		if (bindingResult.hasErrors() || bindingResult.hasFieldErrors()) {
+			return Response.data(HttpStatus.BAD_REQUEST.value(), "BAD_REQUEST", Utils.getFieldError(bindingResult),
+					null);
+		}
+		try {
+			list = courseService.findPage(request);
+
+			if (list == null) {
+				throw new IllegalAccessException();
+			}
+			List<String> createdBy = list.stream().map(l -> l.getCreatedBy()).collect(Collectors.toList());
+
+			List<UserResponse> users = courseService.findUsersByCoursePage(createdBy);
+
+			return Response.data(HttpStatus.OK.value(), "Ok", "User List Found", users);
+		} catch (Exception e) {
+			return Response.data(HttpStatus.NOT_FOUND.value(), "NOT_FOUND", "Record Not Found", null);
+		}
 	}
 }

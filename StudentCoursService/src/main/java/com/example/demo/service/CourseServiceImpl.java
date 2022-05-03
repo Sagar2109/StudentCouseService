@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -38,6 +39,9 @@ import com.example.demo.request.ListPageRequest;
 public class CourseServiceImpl implements CourseService {
 
 	List<Course> list;
+
+	@Value("${usersBy.CoursePage}")
+	private String getUserIdsURL;
 
 	@Autowired
 	private CourseRepo courseRepo;
@@ -160,16 +164,17 @@ public class CourseServiceImpl implements CourseService {
 	public UserResponse findUserById(String id) {
 		HttpHeaders headers = new HttpHeaders();
 
+		Map<String, Object> map = new HashMap<>();
+
 		getUserURL += "?id=" + id;
 
 		headers.setAcceptLanguageAsLocales(Arrays.asList(Locale.ENGLISH));
-		HttpEntity<Map<String, Object>> httpEntity = new HttpEntity<>(headers);
+		HttpEntity<Map<String, Object>> httpEntity = new HttpEntity<>(map, headers);
 
 		RestTemplate restTemplate = new RestTemplate();
-		ResponseEntity<Map> surveyResponse = restTemplate.exchange(getUserURL, HttpMethod.GET, httpEntity,
-				Map.class);
+		ResponseEntity<Map> surveyResponse = restTemplate.exchange(getUserURL, HttpMethod.GET, httpEntity, Map.class);
 		System.out.println(surveyResponse);
-		return modelMapper.map(surveyResponse.getBody().get("data"),UserResponse.class);
+		return modelMapper.map(surveyResponse.getBody().get("data"), UserResponse.class);
 
 	}
 
@@ -180,6 +185,25 @@ public class CourseServiceImpl implements CourseService {
 		}.getType());
 
 		return list;
+	}
+
+	@Override
+	public List<UserResponse> findUsersByCoursePage(List<String> createdBy) {
+		HttpHeaders headers = new HttpHeaders();
+		Map<String, Object> map = new HashMap<>();
+		map.put("id", createdBy);
+
+		headers.setAcceptLanguageAsLocales(Arrays.asList(Locale.ENGLISH));
+		HttpEntity<Map<String, Object>> httpEntity = new HttpEntity<>(map, headers);
+
+		RestTemplate restTemplate = new RestTemplate();
+		ResponseEntity<Map> surveyResponse = restTemplate.exchange(getUserIdsURL, HttpMethod.POST, httpEntity,
+				Map.class);
+
+		return modelMapper.map(surveyResponse.getBody().get("data"), new TypeToken<List<UserResponse>>() {
+		}.getType());
+		// new TypeToken<List<ListCoursesResponse>>() {}.getType()
+
 	}
 
 }

@@ -2,8 +2,6 @@ package com.example.demo.daoImpl;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,7 +90,7 @@ public class CourseDaoImpl implements CourseDao {
 			public Document toDocument(AggregationOperationContext context) {
 
 				return new Document("$addFields", new Document("cid", new Document("$toString", "$_id")))
-						.append("$match", new Document("suspended",false));
+						.append("$match", new Document("suspended", false));
 			}
 		};
 
@@ -101,17 +99,18 @@ public class CourseDaoImpl implements CourseDao {
 		List<CourseDTO> list = mongoTemplate
 				.aggregate(Aggregation.newAggregation(documentId, ss), "CourseInfo", CourseDTO.class)
 				.getMappedResults();
-    //   Set<String> ss1=   list.stream().map(l->l.getCreatedBy()).collect(Collectors.toSet());
+		// Set<String> ss1=
+		// list.stream().map(l->l.getCreatedBy()).collect(Collectors.toSet());
 		return list;
 
 	}
 
 	@Override
 	public List<Course> findAllCoursesBycreatedBy(String createdBy) {
-	   	Criteria criteria = Criteria.where("createdBy").is(createdBy);
+		Criteria criteria = Criteria.where("createdBy").is(createdBy);
 		Query query = Query.query(criteria);
 		return mongoTemplate.find(query, Course.class, "CourseInfo");
-	
+
 	}
 
 }
