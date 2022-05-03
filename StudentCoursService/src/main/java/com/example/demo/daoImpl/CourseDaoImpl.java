@@ -2,6 +2,8 @@ package com.example.demo.daoImpl;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,7 +101,7 @@ public class CourseDaoImpl implements CourseDao {
 		List<CourseDTO> list = mongoTemplate
 				.aggregate(Aggregation.newAggregation(documentId, ss), "CourseInfo", CourseDTO.class)
 				.getMappedResults();
-
+    //   Set<String> ss1=   list.stream().map(l->l.getCreatedBy()).collect(Collectors.toSet());
 		return list;
 
 	}
