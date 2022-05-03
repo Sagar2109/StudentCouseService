@@ -5,9 +5,8 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -17,102 +16,184 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.CourseDTO;
-import com.example.demo.medel.Course;
+import com.example.demo.model.Course;
 import com.example.demo.reponse.CourseStudentDetailResponse;
+import com.example.demo.reponse.CourseWithUserResponse;
+import com.example.demo.reponse.ListCoursesResponse;
+import com.example.demo.request.CourseDeleteRequest;
+import com.example.demo.request.CourseUpdateRequest;
 import com.example.demo.request.ListPageRequest;
 import com.example.demo.service.CourseService;
+import com.example.demo.util.Response;
+import com.example.demo.util.Utils;
 
 @RestController
 @RequestMapping("/course")
 public class CourseController {
 
 	@Autowired
-	private CourseService service;
+	private CourseService courseService;
 
-	@GetMapping("/retrive")
-	public List<Course> getRec() {
-		return service.findAll();
+	@GetMapping("/find-all-course")
+	public List<Course> findAllCourse() {
+		return courseService.findAll();
 
 	}
 
-	
 	/*
-	 * @GetMapping("/getsing") public Course getSingRec(@RequestParam String cid) {
-	 * return service.find(cid);
+	 * @GetMapping("/getsing") public ResponseEntity<Object>
+	 * findCourseById(@RequestParam String cid) {
 	 * 
-	 * }
+	 * Course course = courseService.findCourseById(cid);
+	 * 
+	 * if (course != null) {
+	 * 
+	 * return ResponseEntity.ok().body(course); } else {
+	 * 
+	 * return ResponseEntity.notFound().build();
+	 * 
+	 * } }
 	 */
-	 
-	 @GetMapping("/getsing")
-	 public ResponseEntity<Object> getSingRec(@RequestParam String cid) {
-	  
-		 Course course= service.find(cid);
-	  
-		 if(course!=null)
-		 {
-			 System.out.println(ResponseEntity.ok().body(course).toString());
-			 return ResponseEntity.ok().body(course);
-		 }else
-		 {
-			 System.out.println(ResponseEntity.notFound().build().toString());
-			 return ResponseEntity.notFound().build();
-			 
-		 }
-	  }
 
-	
-	@DeleteMapping("/del")
-	public String getDelRec(@RequestParam String cid) {
-		return service.delete(cid);
+	@GetMapping("/")
+	public Object findCourseById(@RequestParam String cid) {
 
+		CourseWithUserResponse course;
+		try {
+
+			course = courseService.findCourseById(cid);
+			if (course == null) {
+				throw new IllegalAccessException();
+			} else {
+
+				return Response.data(HttpStatus.OK.value(), "Ok", "Course Found", course);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Response.data(HttpStatus.NOT_FOUND.value(), "NOT_FOUND", "Course Not Found", null);
+
+		}
+	}
+
+	@PutMapping("/del")
+	public Object deleteCourse(@Valid @RequestBody CourseDeleteRequest request, BindingResult bindingResult) {
+		Course course = null;
+
+		if (bindingResult.hasErrors() || bindingResult.hasFieldErrors()) {
+			return Response.data(HttpStatus.BAD_REQUEST.value(), "BAD_REQUEST", Utils.getFieldError(bindingResult),
+					null);
+		}
+		try {
+
+			course = courseService.deleteCourse(request);
+
+			if (course == null)
+
+				throw new IllegalAccessException();
+
+			return Response.data(HttpStatus.OK.value(), "Ok", "User Deleted successfuly", course.getCid());
+
+		} catch (Exception e) {
+
+			return Response.data(HttpStatus.NOT_FOUND.value(), "NOT_FOUND", "User is not found", course);
+
+		}
 	}
 
 	@PostMapping("/insert")
 	public Object insertRec(@RequestBody Course course) {
-
-		return service.insert(course);
+		return courseService.insert(course);
 
 	}
 
 	@PutMapping("/update")
-	public Course updateRec(@RequestBody Course course) {
+	public Object updateCourse(@Valid @RequestBody CourseUpdateRequest courseUpdateRequest,
+			BindingResult bindingResult) {
+		Course course = null;
 
-		return service.update(course);
+		if (bindingResult.hasErrors() || bindingResult.hasFieldErrors()) {
+			return Response.data(HttpStatus.BAD_REQUEST.value(), "BAD_REQUEST", Utils.getFieldError(bindingResult),
+					null);
+		}
 
+		try {
+
+			course = courseService.updateCourse(courseUpdateRequest);
+
+			if (course == null)
+				throw new IllegalAccessException();
+
+			return Response.data(HttpStatus.OK.value(), "Ok", "User Updated successfuly", course);
+		} catch (Exception e) {
+
+			return Response.data(HttpStatus.NOT_FOUND.value(), "NOT_FOUND", "User is not found", null);
+
+		}
 	}
 
 	@GetMapping("/course-students-details")
 	public CourseStudentDetailResponse courseStudentDetails(@RequestParam String id) {
 
-		return service.findCourseStudentDetails(id);
+		return courseService.findCourseStudentDetails(id);
 
 	}
 
 	/*
 	 * @PostMapping("/list-page") public List<Course>
 	 * listPagenation(@Valid @RequestBody ListPageRequest request) { return
-	 * service.findPage(request); }
+	 * courseService.findPage(request); }
 	 */
-	
+
+	/*
+	 * @PostMapping("/list-page") public ResponseEntity<Object>
+	 * listPagenation(@Valid @RequestBody ListPageRequest request, BindingResult
+	 * bindingResult) { if (bindingResult.hasErrors()) {
+	 * 
+	 * return ResponseEntity.badRequest().body(bindingResult.getFieldError().
+	 * getDefaultMessage()); } else {
+	 * 
+	 * List<Course> list = courseService.findPage(request);
+	 * 
+	 * return ResponseEntity.ok().body(list);
+	 * 
+	 * } }
+	 */
+
 	@PostMapping("/list-page")
-	public ResponseEntity<Object> listPagenation(@Valid @RequestBody ListPageRequest request, BindingResult bindingResult) {
-		if(bindingResult.hasErrors())
-		{ 
-			
-			return ResponseEntity.badRequest().body(bindingResult.getFieldError().getDefaultMessage());
-		}else
-		{
-			
-		   List<Course> list=service.findPage(request);
-		   
-		  return  ResponseEntity.ok().body(list);
-		    
+	public Object listPagenation(@Valid @RequestBody ListPageRequest request, BindingResult bindingResult) {
+		List<Course> list = null;
+		if (bindingResult.hasErrors() || bindingResult.hasFieldErrors()) {
+
+			return Response.data(HttpStatus.BAD_REQUEST.value(), "BAD_REQUEST", Utils.getFieldError(bindingResult),
+					null);
+
+		}
+
+		try {
+
+			list = courseService.findPage(request);
+			if (list == null) {
+				throw new IllegalAccessException();
+			}
+
+			return Response.data(HttpStatus.OK.value(), "Ok", "List Found", list);
+
+		} catch (Exception e) {
+
+			return Response.data(HttpStatus.NOT_FOUND.value(), "NOT_FOUND", "Record Not Found", null);
+
 		}
 	}
 
-	
 	@GetMapping("/course-lookup")
 	public List<CourseDTO> listLookUp() {
-		return service.findAllCoursesByLookup();
+		return courseService.findAllCoursesByLookup();
+	}
+
+	@GetMapping("/findAll")
+	public List<ListCoursesResponse> findAllCourseBycreatedBy(@Valid @RequestParam String createdBy) {
+
+		return courseService.findAllCoursesBycreatedBy(createdBy);
+
 	}
 }

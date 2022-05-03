@@ -1,26 +1,36 @@
 package com.example.demo.service;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
+import java.util.Locale;
+import java.util.Map;
 
-import org.bson.Document;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
-import org.springframework.data.mongodb.core.aggregation.AggregationOperationContext;
-import org.springframework.data.mongodb.core.aggregation.LookupOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import com.example.demo.dao.CourseDao;
 import com.example.demo.dao.StudentDao;
 import com.example.demo.dto.CourseDTO;
-import com.example.demo.medel.Course;
-import com.example.demo.medel.Student;
+import com.example.demo.model.Course;
+import com.example.demo.model.Student;
 import com.example.demo.reponse.CourseStudentDetailResponse;
+import com.example.demo.reponse.CourseWithUserResponse;
+import com.example.demo.reponse.ListCoursesResponse;
+import com.example.demo.reponse.UserResponse;
 import com.example.demo.repository.CourseRepo;
+import com.example.demo.request.CourseDeleteRequest;
+import com.example.demo.request.CourseUpdateRequest;
 import com.example.demo.request.ListPageRequest;
 
 @Service
@@ -30,46 +40,44 @@ public class CourseServiceImpl implements CourseService {
 	List<Course> list;
 
 	@Autowired
-	private CourseRepo<Course> courseRepo;
+	private CourseRepo courseRepo;
 	@Autowired
 	private StudentDao stuentDao;
+	@Autowired
+	private CourseDao courseDao;
 	@Autowired
 	private ModelMapper modelMapper;
 
 	@Autowired
 	private MongoTemplate mongoTemplate;
 
+	@Value("${userService.user.get}")
+	private String getUserURL;
+
 	@Override
 	public List<Course> findAll() {
-		list = courseRepo.findAll();
+		list = courseDao.findAll();
 		return list;
 	}
 
 	@Override
-	public Course find(String id) {
-		Optional<Course> ob1;
-		ob1 = courseRepo.findById(id);
-		if(ob1.isPresent())
-			return ob1.get();
-		return null;
-       
-	}
-
-	@Override
-	public String delete(String id) {
-
-		courseRepo.deleteById(id);
-		return "Record deleted";
-
+	public CourseWithUserResponse findCourseById(String id) {
+		Course course = courseDao.findCourseById(id);
+		CourseWithUserResponse response = modelMapper.map(course, CourseWithUserResponse.class);
+		response.setCreatedBy(findUserById(course.getCreatedBy()));
+		return response;
 	}
 
 	@Override
 	public Object insert(Course course) {
+
 		if (isCourseNameExists(course.getCname()))
 			return "Couse Name Already Taken";
-		else
-			courseRepo.save(course);
-		return course;
+		else {
+			course.setSupended(false);
+			return courseRepo.save(course);
+
+		}
 
 	}
 
@@ -83,14 +91,11 @@ public class CourseServiceImpl implements CourseService {
 	}
 
 	@Override
-	public Course update(Course course) {
+	public Course updateCourse(CourseUpdateRequest courseUpdateRequest) {
 
-		String id = course.getCid();
-		if (courseRepo.existsById(id)) {
-			courseRepo.deleteById(id);
-			courseRepo.save(course);
-		}
-		return course;
+		Course course = modelMapper.map(courseUpdateRequest, Course.class);
+
+		return courseDao.updateCourse(course);
 
 	}
 
@@ -105,7 +110,7 @@ public class CourseServiceImpl implements CourseService {
 
 	public CourseStudentDetailResponse findCourseStudentDetails(String id) {
 
-		Course course = find(id);
+		Course course = null; // findCourseById(id);
 
 		List<Student> students = stuentDao.findAllByCoursesByStudet(id);
 
@@ -121,39 +126,15 @@ public class CourseServiceImpl implements CourseService {
 	@Override
 	public List<Course> findPage(ListPageRequest request) {
 
-		Criteria cnm = Criteria.where("cname").regex(request.getSearchText(), "i");
-		Criteria cds = Criteria.where("cdesc").regex(request.getSearchText(), "i");
+		return courseDao.findPage(request);
 
-		Query query = new Query(new Criteria().orOperator(cnm, cds));
-		query.skip(request.getPage() * request.getTotalInList()).limit((int) request.getTotalInList());
-
-		String s[] = request.getFields();
-
-		query.fields().include(s).include("_class");
-
-		list = mongoTemplate.find(query, Course.class, "CourseInfo");
-
-		return list;
 	}
 
 	@Override
 	public List<CourseDTO> findAllCoursesByLookup() {
-        
-		AggregationOperation documentId = new AggregationOperation() {
-			@Override
-			public Document toDocument(AggregationOperationContext context) {
 
-				return new Document("$addFields", new Document("cid", new Document("$toString", "$_id")));
-			}
-		};
+		return courseDao.findAllCoursesByLookup();
 
-		LookupOperation ss = Aggregation.lookup("StudentInfo", "cid", "courseIds", "students");
-
-		List<CourseDTO> list = mongoTemplate
-				.aggregate(Aggregation.newAggregation(documentId, ss), "CourseInfo", CourseDTO.class)
-				.getMappedResults();
-
-		return list;
 	}
 
 	public CourseDTO CourseToCourseDTO(Course course) {
@@ -165,6 +146,40 @@ public class CourseServiceImpl implements CourseService {
 	public Course CourseDTOToCourse(CourseDTO courseDTO) {
 		Course course = modelMapper.map(courseDTO, Course.class);
 		return course;
+	}
+
+	@Override
+	public Course deleteCourse(CourseDeleteRequest request) {
+
+		Course course = courseDao.findCourseById(request.getCid());
+
+		return courseDao.deleteCourse(course);
+
+	}
+
+	public UserResponse findUserById(String id) {
+		HttpHeaders headers = new HttpHeaders();
+
+		getUserURL += "?id=" + id;
+
+		headers.setAcceptLanguageAsLocales(Arrays.asList(Locale.ENGLISH));
+		HttpEntity<Map<String, Object>> httpEntity = new HttpEntity<>(headers);
+
+		RestTemplate restTemplate = new RestTemplate();
+		ResponseEntity<UserResponse> surveyResponse = restTemplate.exchange(getUserURL, HttpMethod.GET, httpEntity,
+				UserResponse.class);
+		System.out.println(surveyResponse);
+		return surveyResponse.getBody();
+
+	}
+
+	@Override
+	public List<ListCoursesResponse> findAllCoursesBycreatedBy(String createdBy) {
+		List<Course> courses = courseDao.findAllCoursesBycreatedBy(createdBy);
+		List<ListCoursesResponse> list = modelMapper.map(courses, new TypeToken<List<ListCoursesResponse>>() {
+		}.getType());
+
+		return list;
 	}
 
 }

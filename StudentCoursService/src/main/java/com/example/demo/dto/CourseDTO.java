@@ -1,16 +1,46 @@
 package com.example.demo.dto;
 
+import java.util.Date;
 import java.util.List;
 
-import com.example.demo.medel.Student;
+import com.example.demo.model.Student;
 
 public class CourseDTO {
 
 	private String cid;
 	private String cname;
 	private String cdesc;
+	private Boolean suspended;
+	private Date modifiedAt=new Date();
+	private Date createdAt=new Date();
+	private String createdBy;
     private List<Student> students;
     
+    
+	public Boolean getSuspended() {
+		return suspended;
+	}
+	public void setSuspended(Boolean suspended) {
+		this.suspended = suspended;
+	}
+	public Date getModifiedAt() {
+		return modifiedAt;
+	}
+	public void setModifiedAt(Date modifiedAt) {
+		this.modifiedAt = modifiedAt;
+	}
+	public Date getCreatedAt() {
+		return createdAt;
+	}
+	public void setCreatedAt(Date createdAt) {
+		this.createdAt = createdAt;
+	}
+	public String getCreatedBy() {
+		return createdBy;
+	}
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
 	public String getCid() {
 		return cid;
 	}

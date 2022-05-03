@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class ListPageRequest {
-     @Min(1)
+     @Min(0)
 	private long page;
 	private long totalInList;
 	private String searchText;
