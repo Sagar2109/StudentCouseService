@@ -166,10 +166,10 @@ public class CourseServiceImpl implements CourseService {
 		HttpEntity<Map<String, Object>> httpEntity = new HttpEntity<>(headers);
 
 		RestTemplate restTemplate = new RestTemplate();
-		ResponseEntity<UserResponse> surveyResponse = restTemplate.exchange(getUserURL, HttpMethod.GET, httpEntity,
-				UserResponse.class);
+		ResponseEntity<Map> surveyResponse = restTemplate.exchange(getUserURL, HttpMethod.GET, httpEntity,
+				Map.class);
 		System.out.println(surveyResponse);
-		return surveyResponse.getBody();
+		return modelMapper.map(surveyResponse.getBody().get("data"),UserResponse.class);
 
 	}
 
