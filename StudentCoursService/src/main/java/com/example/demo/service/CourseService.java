@@ -39,6 +39,6 @@ public interface CourseService {
 
 	public List<ListCoursesResponse> findAllCoursesBycreatedBy(String uid);
 
-	public List<UserResponse> findUsersByCoursePage(List<String> createdBy);
+	public List<CourseWithUserResponse> findCoursewithUser( ListPageRequest request) throws IllegalAccessException;
 
 }

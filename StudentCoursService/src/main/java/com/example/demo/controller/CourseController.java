@@ -1,7 +1,7 @@
 package com.example.demo.controller;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -21,7 +21,6 @@ import com.example.demo.model.Course;
 import com.example.demo.reponse.CourseStudentDetailResponse;
 import com.example.demo.reponse.CourseWithUserResponse;
 import com.example.demo.reponse.ListCoursesResponse;
-import com.example.demo.reponse.UserResponse;
 import com.example.demo.request.CourseDeleteRequest;
 import com.example.demo.request.CourseUpdateRequest;
 import com.example.demo.request.ListPageRequest;
@@ -230,24 +229,22 @@ public class CourseController {
 
 	@PostMapping("/users-by-coursePage")
 	public Object usersByCoursePage(@Valid @RequestBody ListPageRequest request, BindingResult bindingResult) {
-		List<Course> list = null;
+
+		List<CourseWithUserResponse> coursewithusers = new ArrayList<>();
+
 		if (bindingResult.hasErrors() || bindingResult.hasFieldErrors()) {
 			return Response.data(HttpStatus.BAD_REQUEST.value(), "BAD_REQUEST", Utils.getFieldError(bindingResult),
 					null);
 		}
 		try {
-			list = courseService.findPage(request);
+			coursewithusers = courseService.findCoursewithUser(request);
 
-			if (list == null) {
+			if (coursewithusers == null) {
 				throw new IllegalAccessException();
 			}
-			List<String> createdBy = list.stream().map(l -> l.getCreatedBy()).collect(Collectors.toList());
-
-			List<UserResponse> users = courseService.findUsersByCoursePage(createdBy);
-
-			return Response.data(HttpStatus.OK.value(), "Ok", "User List Found", users);
+			return Response.data(HttpStatus.OK.value(), "Ok", "Course with User List Found", coursewithusers);
 		} catch (Exception e) {
-			return Response.data(HttpStatus.NOT_FOUND.value(), "NOT_FOUND", "Record Not Found", null);
+			return Response.data(HttpStatus.NOT_FOUND.value(), "NOT_FOUND", "Record Not Found", coursewithusers);
 		}
 	}
 }

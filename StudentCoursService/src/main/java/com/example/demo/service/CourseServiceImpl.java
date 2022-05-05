@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
@@ -68,7 +70,7 @@ public class CourseServiceImpl implements CourseService {
 	public CourseWithUserResponse findCourseById(String id) {
 		Course course = courseDao.findCourseById(id);
 		CourseWithUserResponse response = modelMapper.map(course, CourseWithUserResponse.class);
-		response.setCreatedBy(findUserById(course.getCreatedBy()));
+		response.setCreatedByUser(findUserById(course.getCreatedBy()));
 		return response;
 	}
 
@@ -188,7 +190,28 @@ public class CourseServiceImpl implements CourseService {
 	}
 
 	@Override
-	public List<UserResponse> findUsersByCoursePage(List<String> createdBy) {
+	public List<CourseWithUserResponse> findCoursewithUser(ListPageRequest request) throws IllegalAccessException {
+		List<Course> list = findPage(request);
+
+		if (list == null) {
+			throw new IllegalAccessException();
+		}
+		Set<String> createdBy = list.stream().map(l -> l.getCreatedBy()).collect(Collectors.toSet());
+
+		List<UserResponse> users = findUsersByCourse(createdBy);
+		List<CourseWithUserResponse> coursewithuser = modelMapper.map(list,
+				new TypeToken<List<CourseWithUserResponse>>() {
+				}.getType());
+
+		for (int i = 0; i < coursewithuser.size(); i++) {
+
+			coursewithuser.get(i).setCreatedByUser(users.get(i));
+		}
+		return coursewithuser;
+	}
+
+	private List<UserResponse> findUsersByCourse(Set<String> createdBy) {
+
 		HttpHeaders headers = new HttpHeaders();
 		Map<String, Object> map = new HashMap<>();
 		map.put("id", createdBy);
@@ -202,8 +225,6 @@ public class CourseServiceImpl implements CourseService {
 
 		return modelMapper.map(surveyResponse.getBody().get("data"), new TypeToken<List<UserResponse>>() {
 		}.getType());
-		// new TypeToken<List<ListCoursesResponse>>() {}.getType()
-
+		// new TypeToken<List<ListCoursesResponse>>() {}.getType();
 	}
-
 }

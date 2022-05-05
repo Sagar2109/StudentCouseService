@@ -16,8 +16,8 @@ public class CourseWithUserResponse {
 	private String cname;
 	private String cdesc;
 	private Boolean suspended;
-	private Date modifiedAt = new Date();
-	private Date createdAt = new Date();
+	private Date modifiedAt=new Date();
+	private Date createdAt=new Date();
 	private UserResponse createdByUser;
 
 	public CourseWithUserResponse() {
@@ -72,11 +72,11 @@ public class CourseWithUserResponse {
 		this.createdAt = createdAt;
 	}
 
-	public UserResponse getCreatedBy() {
+	public UserResponse getCreatedByUser() {
 		return createdByUser;
 	}
 
-	public void setCreatedBy(UserResponse createdByUser) {
+	public void setCreatedByUser(UserResponse createdByUser) {
 		this.createdByUser = createdByUser;
 	}
 
