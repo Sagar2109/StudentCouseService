@@ -2,23 +2,22 @@ package com.example.demo.reponse;
 
 import java.util.Date;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
 
 @Data
-@Document(collection = "CourseInfo")
 public class CourseWithUserResponse {
 
-	@Id
 	private String cid;
 	private String cname;
 	private String cdesc;
 	private Boolean suspended;
-	private Date modifiedAt=new Date();
-	private Date createdAt=new Date();
+	private Date modifiedAt;
+	private Date createdAt;
 	private UserResponse createdByUser;
+	private String createdBy;
+
 
 	public CourseWithUserResponse() {
 		super();
@@ -52,7 +51,7 @@ public class CourseWithUserResponse {
 		return suspended;
 	}
 
-	public void setSupended(Boolean suspended) {
+	public void setSuspended(Boolean suspended) {
 		this.suspended = suspended;
 	}
 
@@ -79,9 +78,12 @@ public class CourseWithUserResponse {
 	public void setCreatedByUser(UserResponse createdByUser) {
 		this.createdByUser = createdByUser;
 	}
-
-	public boolean isSuspended() {
-		return suspended;
+	@JsonIgnore
+	public String getCreatedBy() {
+		return createdBy;
 	}
 
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
 }

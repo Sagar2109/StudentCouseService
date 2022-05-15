@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +11,8 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -39,6 +42,8 @@ import com.example.demo.request.ListPageRequest;
 @Service
 
 public class CourseServiceImpl implements CourseService {
+
+	private static final Logger log = LoggerFactory.getLogger(CourseServiceImpl.class);
 
 	List<Course> list;
 
@@ -78,9 +83,9 @@ public class CourseServiceImpl implements CourseService {
 	public Object insert(Course course) {
 
 		if (isCourseNameExists(course.getCname()))
-			return "Couse Name Already Taken";
+			return null;
 		else {
-			course.setSupended(false);
+			course.setSuspended(false);
 			return courseRepo.save(course);
 
 		}
@@ -176,6 +181,8 @@ public class CourseServiceImpl implements CourseService {
 		RestTemplate restTemplate = new RestTemplate();
 		ResponseEntity<Map> surveyResponse = restTemplate.exchange(getUserURL, HttpMethod.GET, httpEntity, Map.class);
 		System.out.println(surveyResponse);
+		log.info("Exception Inside CourseServiceImpl in Api findUserById(...)");
+
 		return modelMapper.map(surveyResponse.getBody().get("data"), UserResponse.class);
 
 	}
@@ -194,7 +201,7 @@ public class CourseServiceImpl implements CourseService {
 		List<Course> list = findPage(request);
 
 		if (list == null) {
-			throw new IllegalAccessException();
+			new ArrayList<>();
 		}
 		Set<String> createdBy = list.stream().map(l -> l.getCreatedBy()).collect(Collectors.toSet());
 
@@ -205,7 +212,13 @@ public class CourseServiceImpl implements CourseService {
 
 		for (int i = 0; i < coursewithuser.size(); i++) {
 
-			coursewithuser.get(i).setCreatedByUser(users.get(i));
+			for (UserResponse ur : users) {
+
+				if (ur.getId().equals(coursewithuser.get(i).getCreatedBy())) {
+					coursewithuser.get(i).setCreatedByUser(ur);
+					break;
+				}
+			}
 		}
 		return coursewithuser;
 	}
@@ -222,7 +235,7 @@ public class CourseServiceImpl implements CourseService {
 		RestTemplate restTemplate = new RestTemplate();
 		ResponseEntity<Map> surveyResponse = restTemplate.exchange(getUserIdsURL, HttpMethod.POST, httpEntity,
 				Map.class);
-
+		log.info("Exception Inside CourseServiceImpl in Api findUsersByCourse(...)");
 		return modelMapper.map(surveyResponse.getBody().get("data"), new TypeToken<List<UserResponse>>() {
 		}.getType());
 		// new TypeToken<List<ListCoursesResponse>>() {}.getType();

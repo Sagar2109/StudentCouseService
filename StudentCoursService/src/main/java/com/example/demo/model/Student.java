@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
@@ -17,6 +18,15 @@ public class Student {
 	private String email;
 	private String contactNo;
 	private List<String> courseIds;
+	private Boolean suspended;
+	private Date modifiedAt = new Date();
+	private Date createdAt = new Date();
+	
+	
+	public Student() {
+		super();
+	
+	}
 	public String getId() {
 		return id;
 	}
@@ -47,6 +57,25 @@ public class Student {
 	public void setCourseIds(List<String> courseIds) {
 		this.courseIds = courseIds;
 	}
+	public Boolean getSuspended() {
+		return suspended;
+	}
+	public void setSuspended(Boolean suspended) {
+		this.suspended = suspended;
+	}
+	public Date getModifiedAt() {
+		return modifiedAt;
+	}
+	public void setModifiedAt(Date modifiedAt) {
+		this.modifiedAt = modifiedAt;
+	}
+	public Date getCreatedAt() {
+		return createdAt;
+	}
+	public void setCreatedAt(Date createdAt) {
+		this.createdAt = createdAt;
+	}
+	
 	
 
 }

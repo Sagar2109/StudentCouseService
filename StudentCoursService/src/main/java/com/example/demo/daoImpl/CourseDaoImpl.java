@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.bson.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -25,6 +27,7 @@ import com.example.demo.request.ListPageRequest;
 @Component
 public class CourseDaoImpl implements CourseDao {
 
+	private static final Logger log = LoggerFactory.getLogger(CourseDaoImpl.class);
 	@Autowired
 	private MongoTemplate mongoTemplate;
 
@@ -75,8 +78,9 @@ public class CourseDaoImpl implements CourseDao {
 		query.skip(request.getPage() * request.getTotalInList()).limit((int) request.getTotalInList());
 
 		String s[] = request.getFields();
-
-		query.fields().include(s).include("_class");
+		if (s != null && s.length > 0)
+			query.fields().include(s).include("_class");
+		log.info("Exception Inside CourseDaoImpl in Api findPage(...)");
 
 		return mongoTemplate.find(query, Course.class, "CourseInfo");
 
@@ -101,6 +105,7 @@ public class CourseDaoImpl implements CourseDao {
 				.getMappedResults();
 		// Set<String> ss1=
 		// list.stream().map(l->l.getCreatedBy()).collect(Collectors.toSet());
+		log.info("Exception Inside CourseDaoImpl in Api findAllCoursesByLookup(...)");
 		return list;
 
 	}
@@ -109,6 +114,8 @@ public class CourseDaoImpl implements CourseDao {
 	public List<Course> findAllCoursesBycreatedBy(String createdBy) {
 		Criteria criteria = Criteria.where("createdBy").is(createdBy);
 		Query query = Query.query(criteria);
+		
+		log.info("Exception Inside CourseDaoImpl in Api findAllCoursesBycreatedBy(...)");
 		return mongoTemplate.find(query, Course.class, "CourseInfo");
 
 	}

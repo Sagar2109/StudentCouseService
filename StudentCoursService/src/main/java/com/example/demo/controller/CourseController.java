@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
@@ -32,6 +34,7 @@ import com.example.demo.util.Utils;
 @RequestMapping("/course")
 public class CourseController {
 
+	private static final Logger log = LoggerFactory.getLogger(CourseController.class);
 	@Autowired
 	private CourseService courseService;
 
@@ -102,8 +105,31 @@ public class CourseController {
 	}
 
 	@PostMapping("/insert")
-	public Object insertRec(@RequestBody Course course) {
-		return courseService.insert(course);
+	public Object insertRec(@Valid @RequestParam String authUserId, @RequestBody Course course,
+			BindingResult bindingResult) {
+		Object course1=null;
+		
+	
+		if (bindingResult.hasErrors() || bindingResult.hasFieldErrors()) {
+			return Response.data(HttpStatus.BAD_REQUEST.value(), "BAD_REQUEST", Utils.getFieldError(bindingResult),
+					null);
+		}
+
+		try {
+
+			 course1=courseService.insert(course);
+
+			if (course1 == null)
+				throw new IllegalAccessException();
+			
+              
+			return Response.data(HttpStatus.OK.value(), "Ok", "Course Added successfuly", course);
+		} catch (Exception e) {
+			log.info("Exception Inside CourseController in Api inserRec(...)");
+			return Response.data(HttpStatus.CONFLICT.value(), "CONFLICT", "Email is already taken", course1);
+
+		}
+	
 
 	}
 
@@ -124,10 +150,10 @@ public class CourseController {
 			if (course == null)
 				throw new IllegalAccessException();
 
-			return Response.data(HttpStatus.OK.value(), "Ok", "User Updated successfuly", course);
+			return Response.data(HttpStatus.OK.value(), "Ok", "Course Updated successfuly", course);
 		} catch (Exception e) {
 
-			return Response.data(HttpStatus.NOT_FOUND.value(), "NOT_FOUND", "User is not found", null);
+			return Response.data(HttpStatus.NOT_FOUND.value(), "NOT_FOUND", "Course is not found", null);
 
 		}
 	}
@@ -217,6 +243,8 @@ public class CourseController {
 				throw new IllegalAccessException();
 			}
 
+			log.info("Exception Inside CourseController in Api findAllCourseBycreatedBy(...)");
+
 			return Response.data(HttpStatus.OK.value(), "Ok", "List Found", list);
 
 		} catch (Exception e) {
@@ -242,6 +270,7 @@ public class CourseController {
 			if (coursewithusers == null) {
 				throw new IllegalAccessException();
 			}
+			log.info("Exception Inside CourseController in Api usersByCoursePage(...)");
 			return Response.data(HttpStatus.OK.value(), "Ok", "Course with User List Found", coursewithusers);
 		} catch (Exception e) {
 			return Response.data(HttpStatus.NOT_FOUND.value(), "NOT_FOUND", "Record Not Found", coursewithusers);

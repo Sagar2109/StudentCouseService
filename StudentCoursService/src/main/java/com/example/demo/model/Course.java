@@ -52,7 +52,7 @@ public class Course {
 		return suspended;
 	}
 
-	public void setSupended(Boolean suspended) {
+	public void setSuspended(Boolean suspended) {
 		this.suspended = suspended;
 	}
 
