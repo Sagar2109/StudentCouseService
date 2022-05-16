@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.example.demo.dto.StudentDTO;
 import com.example.demo.model.Student;
+import com.example.demo.request.StudentAddRequest;
+import com.example.demo.request.StudentUpdateRequest;
 
 public interface StudentService {
 
@@ -13,13 +15,11 @@ public interface StudentService {
 
 	public Student findByEmail(String email);
 
-	
+	public Student delete(String id);
 
-	public String delete(String id);
+	public Object insert(StudentAddRequest request);
 
-	public Object insert(Student student);
-
-	public Student update(Student student);
+	public Student update(StudentUpdateRequest request);
 
 	public List<Student> findAllByCourses(List<String> courseid);
 

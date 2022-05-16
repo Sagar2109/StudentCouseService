@@ -23,6 +23,7 @@ import com.example.demo.model.Course;
 import com.example.demo.reponse.CourseStudentDetailResponse;
 import com.example.demo.reponse.CourseWithUserResponse;
 import com.example.demo.reponse.ListCoursesResponse;
+import com.example.demo.request.CourseAddRequest;
 import com.example.demo.request.CourseDeleteRequest;
 import com.example.demo.request.CourseUpdateRequest;
 import com.example.demo.request.ListPageRequest;
@@ -105,32 +106,24 @@ public class CourseController {
 	}
 
 	@PostMapping("/insert")
-	public Object insertRec(@Valid @RequestParam String authUserId, @RequestBody Course course,
+	public Object insertRec(@Valid @RequestParam String authUserId, @RequestBody CourseAddRequest request,
 			BindingResult bindingResult) {
-		Object course1=null;
-		
-	
+		Course course = null;
+
 		if (bindingResult.hasErrors() || bindingResult.hasFieldErrors()) {
 			return Response.data(HttpStatus.BAD_REQUEST.value(), "BAD_REQUEST", Utils.getFieldError(bindingResult),
 					null);
 		}
-
 		try {
-
-			 course1=courseService.insert(course);
-
-			if (course1 == null)
+			course = courseService.insert(request);
+			if (course == null)
 				throw new IllegalAccessException();
-			
-              
+
 			return Response.data(HttpStatus.OK.value(), "Ok", "Course Added successfuly", course);
 		} catch (Exception e) {
 			log.info("Exception Inside CourseController in Api inserRec(...)");
-			return Response.data(HttpStatus.CONFLICT.value(), "CONFLICT", "Email is already taken", course1);
-
+			return Response.data(HttpStatus.CONFLICT.value(), "CONFLICT", "Course Name is already taken", course);
 		}
-	
-
 	}
 
 	@PutMapping("/update")
@@ -152,6 +145,7 @@ public class CourseController {
 
 			return Response.data(HttpStatus.OK.value(), "Ok", "Course Updated successfuly", course);
 		} catch (Exception e) {
+			log.info("Exception Inside CourseController in Api updateCourse(...)");
 
 			return Response.data(HttpStatus.NOT_FOUND.value(), "NOT_FOUND", "Course is not found", null);
 
@@ -206,7 +200,7 @@ public class CourseController {
 			return Response.data(HttpStatus.OK.value(), "Ok", "List Found", list);
 
 		} catch (Exception e) {
-
+			log.info("Exception Inside CourseController in Api listPagenation(...)");
 			return Response.data(HttpStatus.NOT_FOUND.value(), "NOT_FOUND", "Record Not Found", null);
 
 		}
@@ -270,9 +264,10 @@ public class CourseController {
 			if (coursewithusers == null) {
 				throw new IllegalAccessException();
 			}
-			log.info("Exception Inside CourseController in Api usersByCoursePage(...)");
+
 			return Response.data(HttpStatus.OK.value(), "Ok", "Course with User List Found", coursewithusers);
 		} catch (Exception e) {
+			log.info("Exception Inside CourseController in Api usersByCoursePage(...)");
 			return Response.data(HttpStatus.NOT_FOUND.value(), "NOT_FOUND", "Record Not Found", coursewithusers);
 		}
 	}

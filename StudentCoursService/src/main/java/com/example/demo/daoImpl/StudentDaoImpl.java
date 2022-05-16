@@ -1,13 +1,16 @@
 package com.example.demo.daoImpl;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.dao.StudentDao;
@@ -19,8 +22,6 @@ public class StudentDaoImpl implements StudentDao {
 	@Autowired
 	private MongoTemplate mongoTemplate;
 
-	@Autowired
-
 	@Override
 	public List<Student> findAllData() {
 		return mongoTemplate.findAll(Student.class, "StudentInfo");
@@ -28,27 +29,21 @@ public class StudentDaoImpl implements StudentDao {
 	}
 
 	@Override
-	public String deleteData(String id) {
-
-		Student student = new Student();
-		student.setId(id);
-		mongoTemplate.remove(student);
-		return "Deleted Successfully";
-	}
-
-	@Override
 	public Object insertData(Student student) {
-       
-		mongoTemplate.save(student);
-		return student;
+
+		return mongoTemplate.save(student);
 
 	}
 
 	@Override
 	public Student updateData(Student student) {
 
-		mongoTemplate.save(student);
-		return student;
+		Query query = Query.query(Criteria.where("id").is(student.getId()));
+		Update update = new Update().set("name", student.getName()).set("contactNo", student.getContactNo())
+				.set("modifiedAt", new Date());
+
+		return mongoTemplate.findAndModify(query, update, FindAndModifyOptions.options().returnNew(true),
+				Student.class);
 
 	}
 

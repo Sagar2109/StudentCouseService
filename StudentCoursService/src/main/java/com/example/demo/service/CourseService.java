@@ -1,7 +1,6 @@
 package com.example.demo.service;
 
 import java.util.List;
-import java.util.Set;
 
 import javax.validation.Valid;
 
@@ -10,7 +9,7 @@ import com.example.demo.model.Course;
 import com.example.demo.reponse.CourseStudentDetailResponse;
 import com.example.demo.reponse.CourseWithUserResponse;
 import com.example.demo.reponse.ListCoursesResponse;
-import com.example.demo.reponse.UserResponse;
+import com.example.demo.request.CourseAddRequest;
 import com.example.demo.request.CourseDeleteRequest;
 import com.example.demo.request.CourseUpdateRequest;
 import com.example.demo.request.ListPageRequest;
@@ -19,7 +18,7 @@ public interface CourseService {
 
 	public List<Course> findAll();
 
-	public Object insert(Course course);
+	public Course insert(CourseAddRequest request);
 
 	public List<Course> findAllCourses(List<String> list);
 
@@ -39,6 +38,6 @@ public interface CourseService {
 
 	public List<ListCoursesResponse> findAllCoursesBycreatedBy(String uid);
 
-	public List<CourseWithUserResponse> findCoursewithUser( ListPageRequest request) throws IllegalAccessException;
+	public List<CourseWithUserResponse> findCoursewithUser(ListPageRequest request) throws IllegalAccessException;
 
 }

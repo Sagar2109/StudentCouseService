@@ -2,7 +2,6 @@ package com.example.demo.dao;
 
 import java.util.List;
 
-
 import org.springframework.stereotype.Component;
 
 import com.example.demo.model.Course;
@@ -14,8 +13,6 @@ public interface StudentDao {
 
 	List<Student> findAllData();
 
-	String deleteData(String id);
-
 	Object insertData(Student student);
 
 	Student updateData(Student student);
@@ -23,7 +20,6 @@ public interface StudentDao {
 	Student findByIdData(String id);
 
 	Student findByEmailData(String email);
-   
 
 	List<Student> findAllByCoursesData(List<String> courseid);
 

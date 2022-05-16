@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -35,6 +36,7 @@ import com.example.demo.reponse.CourseWithUserResponse;
 import com.example.demo.reponse.ListCoursesResponse;
 import com.example.demo.reponse.UserResponse;
 import com.example.demo.repository.CourseRepo;
+import com.example.demo.request.CourseAddRequest;
 import com.example.demo.request.CourseDeleteRequest;
 import com.example.demo.request.CourseUpdateRequest;
 import com.example.demo.request.ListPageRequest;
@@ -80,12 +82,15 @@ public class CourseServiceImpl implements CourseService {
 	}
 
 	@Override
-	public Object insert(Course course) {
+	public Course insert(CourseAddRequest request) {
 
-		if (isCourseNameExists(course.getCname()))
+		if (isCourseNameExists(request.getCname()))
 			return null;
 		else {
+			Course course = modelMapper.map(request, Course.class);
 			course.setSuspended(false);
+			course.setCreatedAt(new Date());
+			course.setModifiedAt(new Date());
 			return courseRepo.save(course);
 
 		}
